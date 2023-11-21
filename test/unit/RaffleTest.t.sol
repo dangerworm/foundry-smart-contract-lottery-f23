@@ -20,7 +20,6 @@ contract RaffleTest is Test {
     uint256 lotteryInterval;
     address vrfCoordinator;
     bytes32 vrfGasLaneKeyHash;
-    uint64 subscriptionId;
     uint32 callbackGasLimit;
     address linkToken;
     uint256 deployerKey;
@@ -55,7 +54,7 @@ contract RaffleTest is Test {
             lotteryInterval,
             vrfCoordinator,
             vrfGasLaneKeyHash,
-            subscriptionId,
+            ,
             callbackGasLimit,
             linkToken,
             deployerKey
