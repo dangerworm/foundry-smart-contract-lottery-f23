@@ -28,6 +28,13 @@ contract RaffleTest is Test {
     address public PLAYER = makeAddr("player");
     uint256 public constant STARTING_USER_BALANCE = 10 ether;
 
+    modifier skipFork() {
+        if (block.chainid != 31337) {
+            return;
+        }
+        _;
+    }
+
     modifier raffleEntered() {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
@@ -137,13 +144,13 @@ contract RaffleTest is Test {
     }
 
     function test_PerformUpkeepRevertsIfUpkeepNotNeeded() public {
-        uint256 currentBalance = 0;
         uint256 numberOfPlayers = 0;
         uint256 raffleState = 0;
+        vm.prank(PLAYER);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Raffle.Raffle__UpkeepNotNeeded.selector,
-                currentBalance,
+                address(raffle).balance,
                 numberOfPlayers,
                 raffleState
             )
@@ -179,7 +186,7 @@ contract RaffleTest is Test {
     /** fulfillRandomWords **/
     function test_FulFillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
         uint256 randomRequestId
-    ) public raffleEntered timePassed {
+    ) public skipFork raffleEntered timePassed {
         vm.expectRevert("nonexistent request");
         VRFCoordinatorV2Mock(vrfCoordinator).fulfillRandomWords(
             randomRequestId,
@@ -189,6 +196,7 @@ contract RaffleTest is Test {
 
     function test_FulfillRandomWordsPicksAWinnerResetsAndSendsMoney()
         public
+        skipFork
         raffleEntered
         timePassed
     {
